@@ -720,6 +720,37 @@ export class SRSettingTab extends PluginSettingTab {
                     });
             });
 
+        containerEl.createEl("h3", { text: "Quick Append Buttons" });
+        new Setting(containerEl)
+            .setName("Quick Add Button 1 Content")
+            .setDesc("Content to append when clicking QAdd1 button (e.g., ' #ai_train')")
+            .addText((text) =>
+                text
+                    .setPlaceholder(" #ai_train")
+                    .setValue(this.plugin.data.settings.quickAppendContentBtn1)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.quickAppendContentBtn1 = value;
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
+
+        new Setting(containerEl)
+            .setName("Quick Add Button 2 Content")
+            .setDesc("Content to append when clicking QAdd2 button (e.g., ' #delete')")
+            .addText((text) =>
+                text
+                    .setPlaceholder(" #delete")
+                    .setValue(this.plugin.data.settings.quickAppendContentBtn2)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.quickAppendContentBtn2 = value;
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
+
         containerEl.createEl("h3", { text: t("GROUP_FLASHCARDS_NOTES") });
         new Setting(containerEl)
             .setName(t("FLASHCARD_EASY_LABEL"))

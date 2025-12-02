@@ -47,6 +47,10 @@ export interface SRSettings {
     reviewButtonDelay: number;
     openViewInNewTab: boolean;
 
+    // Quick append buttons
+    quickAppendContentBtn1: string;
+    quickAppendContentBtn2: string;
+
     // algorithm
     algorithm: string;
     baseEase: number;
@@ -106,6 +110,10 @@ export const DEFAULT_SETTINGS: SRSettings = {
     flashcardHardText: t("HARD"),
     reviewButtonDelay: 0,
     openViewInNewTab: false,
+
+    // Quick append buttons
+    quickAppendContentBtn1: " #ai_train",
+    quickAppendContentBtn2: " #delete",
 
     // algorithm
     algorithm: Algorithm.SM_2_OSR,

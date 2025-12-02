@@ -63,6 +63,10 @@ export class CardUI {
     public infoButton: HTMLButtonElement;
     public skipButton: HTMLButtonElement;
 
+    public quickAppendControls: HTMLDivElement;
+    public qAdd1Button: HTMLButtonElement;
+    public qAdd2Button: HTMLButtonElement;
+
     public response: HTMLDivElement;
     public hardButton: HTMLButtonElement;
     public goodButton: HTMLButtonElement;
@@ -121,6 +125,11 @@ export class CardUI {
         this.controls.addClass("sr-controls");
 
         this._createCardControls();
+
+        // 新增第二排按鈕
+        this.quickAppendControls = this.view.createDiv();
+        this.quickAppendControls.addClass("sr-quick-append-controls");
+        this._createQuickAppendButtons();
 
         this._createInfoSection();
 
@@ -302,6 +311,60 @@ export class CardUI {
     private async _skipCurrentCard(): Promise<void> {
         this.reviewSequencer.skipCurrentCard();
         await this._showNextCard();
+    }
+
+    private _createQuickAppendButtons() {
+        const btn1Content = this.settings.quickAppendContentBtn1.trim();
+        const btn2Content = this.settings.quickAppendContentBtn2.trim();
+
+        // QAdd1
+        if (btn1Content !== "") {
+            this.qAdd1Button = this.quickAppendControls.createEl("button");
+            this.qAdd1Button.addClasses(["sr-button", "sr-quick-append-button"]);
+            this.qAdd1Button.setText(btn1Content);
+            this.qAdd1Button.setAttribute("aria-label", `Quick Add: ${btn1Content}`);
+            this.qAdd1Button.addEventListener("click", async () => {
+                await this._quickAppendContent(this.settings.quickAppendContentBtn1);
+            });
+        }
+
+        // QAdd2
+        if (btn2Content !== "") {
+            this.qAdd2Button = this.quickAppendControls.createEl("button");
+            this.qAdd2Button.addClasses(["sr-button", "sr-quick-append-button"]);
+            this.qAdd2Button.setText(btn2Content);
+            this.qAdd2Button.setAttribute("aria-label", `Quick Add: ${btn2Content}`);
+            this.qAdd2Button.addEventListener("click", async () => {
+                await this._quickAppendContent(this.settings.quickAppendContentBtn2);
+            });
+        }
+
+        // 如果兩個都沒有，隱藏整個 controls row
+        if (btn1Content === "" && btn2Content === "") {
+            this.quickAppendControls.addClass("sr-is-hidden");
+        }
+    }
+
+    private async _quickAppendContent(content: string): Promise<void> {
+        try {
+            const currentQ: Question = this._currentQuestion;
+
+            // 取得原始文字
+            const originalText = currentQ.questionText.actualQuestion;
+
+            // 在尾端加內容
+            const modifiedText = originalText.trimEnd() + content;
+
+            // 更新
+            await this.reviewSequencer.updateCurrentQuestionText(modifiedText);
+
+            // 顯示成功回饋
+            new Notice(`Appended: ${content}`);
+        } catch (error) {
+            // 錯誤處理
+            new Notice("Failed to append content");
+            console.error("Quick append error:", error);
+        }
     }
 
     private _displayCurrentCardInfoNotice() {
