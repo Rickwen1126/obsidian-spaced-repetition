@@ -221,6 +221,10 @@ export class CardUI {
             this.content,
             this._currentQuestion.questionText.textDirection,
         );
+
+        // Auto-play audio in front card
+        this._autoplayAudio(this.content);
+
         // Set scroll position back to top
         this.content.scrollTop = 0;
 
@@ -664,6 +668,9 @@ export class CardUI {
             this._currentQuestion.questionText.textDirection,
         );
 
+        // Auto-play audio in back card
+        this._autoplayAudio(this.content);
+
         // Show response buttons
         this.answerButton.addClass("sr-is-hidden");
         this.hardButton.removeClass("sr-is-hidden");
@@ -691,6 +698,27 @@ export class CardUI {
                 ReviewResponse.Easy,
             );
         }
+    }
+
+    /**
+     * Auto-play the first audio element in the container
+     * @param container - The HTML container to search for audio elements
+     */
+    private _autoplayAudio(container: HTMLElement): void {
+        // Delay execution to wait for Obsidian's markdown rendering to complete
+        setTimeout(() => {
+            const audioElements = container.querySelectorAll("audio");
+
+            if (audioElements.length > 0) {
+                // Only play the first audio to avoid multiple simultaneous playback
+                const firstAudio = audioElements[0] as HTMLAudioElement;
+
+                firstAudio.play().catch((error) => {
+                    // Silent handling if autoplay fails
+                    console.debug("Audio autoplay failed:", error);
+                });
+            }
+        }, 150); // 150ms delay for rendering engine
     }
 
     private _keydownHandler = (e: KeyboardEvent) => {
