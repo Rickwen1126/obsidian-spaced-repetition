@@ -722,30 +722,32 @@ export class SRSettingTab extends PluginSettingTab {
 
         containerEl.createEl("h3", { text: "Quick Append Buttons" });
         new Setting(containerEl)
-            .setName("Quick Add Button 1 Content")
-            .setDesc("Content to append when clicking QAdd1 button (e.g., ' #ai_train')")
+            .setName("Quick Copy Button Content")
+            .setDesc(
+                "Current Card Content wiil be appended to target path file when clicking button.",
+            )
             .addText((text) =>
                 text
-                    .setPlaceholder(" #ai_train")
-                    .setValue(this.plugin.data.settings.quickAppendContentBtn1)
+                    .setPlaceholder(" Copy To AI-Train")
+                    .setValue(this.plugin.data.settings.quickAppendCardToFileBtn)
                     .onChange((value) => {
                         applySettingsUpdate(async () => {
-                            this.plugin.data.settings.quickAppendContentBtn1 = value;
+                            this.plugin.data.settings.quickAppendCardToFileBtn = value;
                             await this.plugin.savePluginData();
                         });
                     }),
             );
 
         new Setting(containerEl)
-            .setName("Quick Add Button 2 Content")
-            .setDesc("Content to append when clicking QAdd2 button (e.g., ' #delete')")
+            .setName("Quick Add Button Content")
+            .setDesc("Content to append when clicking the button (e.g., ' #delete')")
             .addText((text) =>
                 text
-                    .setPlaceholder(" #delete")
-                    .setValue(this.plugin.data.settings.quickAppendContentBtn2)
+                    .setPlaceholder(" #check")
+                    .setValue(this.plugin.data.settings.quickAppendContentBtn)
                     .onChange((value) => {
                         applySettingsUpdate(async () => {
-                            this.plugin.data.settings.quickAppendContentBtn2 = value;
+                            this.plugin.data.settings.quickAppendContentBtn = value;
                             await this.plugin.savePluginData();
                         });
                     }),

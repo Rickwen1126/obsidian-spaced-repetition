@@ -64,8 +64,8 @@ export class CardUI {
     public skipButton: HTMLButtonElement;
 
     public quickAppendControls: HTMLDivElement;
-    public qAdd1Button: HTMLButtonElement;
-    public qAdd2Button: HTMLButtonElement;
+    public qCopyToFileButton: HTMLButtonElement;
+    public qAddContentButton: HTMLButtonElement;
 
     public response: HTMLDivElement;
     public hardButton: HTMLButtonElement;
@@ -314,17 +314,16 @@ export class CardUI {
     }
 
     private _createQuickAppendButtons() {
-        const btn1Content = this.settings.quickAppendContentBtn1.trim();
-        const btn2Content = this.settings.quickAppendContentBtn2.trim();
+        const btn1Content = this.settings.quickAppendCardToFileBtn.trim();
+        const btn2Content = this.settings.quickAppendContentBtn.trim();
 
         // QAdd1
         if (btn1Content !== "") {
-            this.qAdd1Button = this.quickAppendControls.createEl("button");
-            this.qAdd1Button.addClasses(["sr-button", "sr-quick-append-button"]);
-            this.qAdd1Button.setText(btn1Content);
-            this.qAdd1Button.setAttribute("aria-label", `Quick Add: ${btn1Content}`);
-            this.qAdd1Button.addEventListener("click", async () => {
-                await this._quickAppendContent(this.settings.quickAppendContentBtn1);
+            this.qCopyToFileButton = this.quickAppendControls.createEl("button");
+            this.qCopyToFileButton.addClasses(["sr-button", "sr-quick-append-button"]);
+            this.qCopyToFileButton.setText(btn1Content);
+            this.qCopyToFileButton.setAttribute("aria-label", `Quick Add: ${btn1Content}`);
+            this.qCopyToFileButton.addEventListener("click", async () => {
                 if (this.settings.targetAppendFilePath) {
                     await this._appendCurrentContentToUserDefinedFile();
                 }
@@ -333,12 +332,12 @@ export class CardUI {
 
         // QAdd2
         if (btn2Content !== "") {
-            this.qAdd2Button = this.quickAppendControls.createEl("button");
-            this.qAdd2Button.addClasses(["sr-button", "sr-quick-append-button"]);
-            this.qAdd2Button.setText(btn2Content);
-            this.qAdd2Button.setAttribute("aria-label", `Quick Add: ${btn2Content}`);
-            this.qAdd2Button.addEventListener("click", async () => {
-                await this._quickAppendContent(this.settings.quickAppendContentBtn2);
+            this.qAddContentButton = this.quickAppendControls.createEl("button");
+            this.qAddContentButton.addClasses(["sr-button", "sr-quick-append-button"]);
+            this.qAddContentButton.setText(btn2Content);
+            this.qAddContentButton.setAttribute("aria-label", `Quick Add: ${btn2Content}`);
+            this.qAddContentButton.addEventListener("click", async () => {
+                await this._quickAppendContent(this.settings.quickAppendContentBtn);
             });
         }
 

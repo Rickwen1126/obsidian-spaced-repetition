@@ -48,9 +48,9 @@ export interface SRSettings {
     openViewInNewTab: boolean;
 
     // Quick append buttons
-    quickAppendContentBtn1: string;
-    quickAppendContentBtn2: string;
+    quickAppendCardToFileBtn: string;
     targetAppendFilePath: string;
+    quickAppendContentBtn: string;
 
     // algorithm
     algorithm: string;
@@ -113,8 +113,8 @@ export const DEFAULT_SETTINGS: SRSettings = {
     openViewInNewTab: false,
 
     // Quick append buttons
-    quickAppendContentBtn1: " #ai_train",
-    quickAppendContentBtn2: " #delete",
+    quickAppendCardToFileBtn: "Copy To AI-Train",
+    quickAppendContentBtn: " #delete",
     targetAppendFilePath: "",
 
     // algorithm
