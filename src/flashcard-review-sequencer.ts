@@ -30,6 +30,7 @@ export interface IFlashcardReviewSequencer {
     determineCardSchedule(response: ReviewResponse, card: Card): RepItemScheduleInfo;
     processReview(response: ReviewResponse): Promise<void>;
     updateCurrentQuestionText(text: string): Promise<void>;
+    appendCurrentQuestionToUserDefinedFile(): Promise<void>;
 }
 
 /**
@@ -328,5 +329,11 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
         q.actualQuestion = text;
 
         await DataStore.getInstance().questionWrite(this.currentQuestion);
+    }
+
+    async appendCurrentQuestionToUserDefinedFile(): Promise<void> {
+        const originalText = this.currentQuestion.questionText.actualQuestion;
+        const contentToAppend = `\n- [ ] ${originalText}`;
+        await DataStore.getInstance().appendToTargetNote(contentToAppend);
     }
 }

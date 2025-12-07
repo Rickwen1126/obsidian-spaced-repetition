@@ -50,6 +50,7 @@ export interface SRSettings {
     // Quick append buttons
     quickAppendContentBtn1: string;
     quickAppendContentBtn2: string;
+    targetAppendFilePath: string;
 
     // algorithm
     algorithm: string;
@@ -114,6 +115,7 @@ export const DEFAULT_SETTINGS: SRSettings = {
     // Quick append buttons
     quickAppendContentBtn1: " #ai_train",
     quickAppendContentBtn2: " #delete",
+    targetAppendFilePath: "",
 
     // algorithm
     algorithm: Algorithm.SM_2_OSR,

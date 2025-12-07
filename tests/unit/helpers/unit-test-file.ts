@@ -55,6 +55,10 @@ export class UnitTestSRFile implements ISRFile {
         this.content = content;
     }
 
+    async append(content: string): Promise<void> {
+        this.content += content;
+    }
+
     static CreateFromFsFile(path: string): UnitTestSRFile {
         const content: string = fs.readFileSync(path, "utf8");
         return new UnitTestSRFile(content, path);

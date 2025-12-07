@@ -751,6 +751,23 @@ export class SRSettingTab extends PluginSettingTab {
                     }),
             );
 
+        new Setting(containerEl)
+            .setName("Target Append File Path")
+            .setDesc(
+                "File path where QAdd1 button will copy card content (e.g., 'Inbox/AI Training.md'). Leave empty to disable.",
+            )
+            .addText((text) =>
+                text
+                    .setPlaceholder("Inbox/AI Training.md")
+                    .setValue(this.plugin.data.settings.targetAppendFilePath)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.targetAppendFilePath = value.trim();
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
+
         containerEl.createEl("h3", { text: t("GROUP_FLASHCARDS_NOTES") });
         new Setting(containerEl)
             .setName(t("FLASHCARD_EASY_LABEL"))

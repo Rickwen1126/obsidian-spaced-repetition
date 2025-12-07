@@ -22,6 +22,7 @@ export interface ISRFile {
     getTextDirection(): TextDirection;
     read(): Promise<string>;
     write(content: string): Promise<void>;
+    append(content: string): Promise<void>;
 }
 
 // The Obsidian frontmatter cache doesn't include the line number for the specific tag.
@@ -157,5 +158,9 @@ export class SrTFile implements ISRFile {
 
     async write(content: string): Promise<void> {
         await this.vault.modify(this.file, content);
+    }
+
+    async append(content: string): Promise<void> {
+        await this.vault.append(this.file, content);
     }
 }

@@ -1,18 +1,18 @@
 import { Moment } from "moment";
-import { App } from "obsidian";
 
 import { RepItemScheduleInfo } from "src/algorithms/base/rep-item-schedule-info";
 import { RepItemScheduleInfoOsr } from "src/algorithms/osr/rep-item-schedule-info-osr";
 import { LEGACY_SCHEDULING_EXTRACTOR, MULTI_SCHEDULING_EXTRACTOR } from "src/constants";
 import { IDataStore } from "src/data-stores/base/data-store";
 import { RepItemStorageInfo } from "src/data-stores/base/rep-item-storage-info";
+import { ISRFile } from "src/file";
 import { Question } from "src/question";
 import { SRSettings } from "src/settings";
 import { DateUtil, formatDateYYYYMMDD, globalDateProvider } from "src/utils/dates";
 
 export class StoreInNotes implements IDataStore {
     private settings: SRSettings;
-    app: App;
+    public appendTargetFile: ISRFile | null = null;
 
     constructor(settings: SRSettings) {
         this.settings = settings;
@@ -66,5 +66,13 @@ export class StoreInNotes implements IDataStore {
         const newText: string = question.updateQuestionWithinNoteText(fileText, this.settings);
         await question.note.file.write(newText);
         question.hasChanged = false;
+    }
+
+    async appendToTargetNote(content: string): Promise<void> {
+        if (this.appendTargetFile) {
+            await this.appendTargetFile.append(content);
+        } else {
+            console.warn("SR: Append target file not configured or not found.");
+        }
     }
 }

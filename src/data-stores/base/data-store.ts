@@ -14,6 +14,7 @@ export interface IDataStore {
     questionRemoveScheduleInfo(questionText: string): string;
     questionWrite(question: Question): Promise<void>;
     questionWriteSchedule(question: Question): Promise<void>;
+    appendToTargetNote(content: string): Promise<void>;
 }
 
 export class DataStore {

@@ -433,6 +433,8 @@ export default class SRPlugin extends Plugin {
 
         await this.osrAppCore.loadVault();
 
+        this.updateAppendTargetFile();
+
         if (this.data.settings.showSchedulingDebugMessages) {
             console.log(`SR: ${t("DECKS")}`, this.osrAppCore.reviewableDeckTree);
             console.log(
@@ -441,6 +443,28 @@ export default class SRPlugin extends Plugin {
                         t: Date.now() - now.valueOf(),
                     }),
             );
+        }
+    }
+
+    private updateAppendTargetFile(): void {
+        const store = DataStore.instance;
+        if (store instanceof StoreInNotes) {
+            const targetPath = this.data.settings.targetAppendFilePath;
+            if (targetPath) {
+                const file = this.app.vault.getAbstractFileByPath(targetPath);
+                if (file instanceof TFile) {
+                    store.appendTargetFile = new SrTFile(
+                        this.app.vault,
+                        this.app.metadataCache,
+                        file,
+                    );
+                } else {
+                    store.appendTargetFile = null;
+                    console.log(`SR: Target append file not found: ${targetPath}`);
+                }
+            } else {
+                store.appendTargetFile = null;
+            }
         }
     }
 

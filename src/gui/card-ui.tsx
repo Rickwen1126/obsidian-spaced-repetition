@@ -325,6 +325,9 @@ export class CardUI {
             this.qAdd1Button.setAttribute("aria-label", `Quick Add: ${btn1Content}`);
             this.qAdd1Button.addEventListener("click", async () => {
                 await this._quickAppendContent(this.settings.quickAppendContentBtn1);
+                if (this.settings.targetAppendFilePath) {
+                    await this._appendCurrentContentToUserDefinedFile();
+                }
             });
         }
 
@@ -364,6 +367,16 @@ export class CardUI {
             // 錯誤處理
             new Notice("Failed to append content");
             console.error("Quick append error:", error);
+        }
+    }
+
+    private async _appendCurrentContentToUserDefinedFile(): Promise<void> {
+        try {
+            await this.reviewSequencer.appendCurrentQuestionToUserDefinedFile();
+            new Notice("Content copied to target file");
+        } catch (error) {
+            new Notice("Failed to copy content");
+            console.error("Append to file error:", error);
         }
     }
 
