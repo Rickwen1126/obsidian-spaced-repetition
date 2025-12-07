@@ -737,7 +737,22 @@ export class SRSettingTab extends PluginSettingTab {
                         });
                     }),
             );
-
+        new Setting(containerEl)
+            .setName("Target Append File Path")
+            .setDesc(
+                "File path where Quick Copy Button will copy card content (e.g., 'Inbox/AI Training.md'). Leave empty to disable.",
+            )
+            .addText((text) =>
+                text
+                    .setPlaceholder("Inbox/AI Training.md")
+                    .setValue(this.plugin.data.settings.targetAppendFilePath)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            this.plugin.data.settings.targetAppendFilePath = value.trim();
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
         new Setting(containerEl)
             .setName("Quick Add Button Content")
             .setDesc("Content to append when clicking the button (e.g., ' #delete')")
@@ -748,23 +763,6 @@ export class SRSettingTab extends PluginSettingTab {
                     .onChange((value) => {
                         applySettingsUpdate(async () => {
                             this.plugin.data.settings.quickAppendContentBtn = value;
-                            await this.plugin.savePluginData();
-                        });
-                    }),
-            );
-
-        new Setting(containerEl)
-            .setName("Target Append File Path")
-            .setDesc(
-                "File path where QAdd1 button will copy card content (e.g., 'Inbox/AI Training.md'). Leave empty to disable.",
-            )
-            .addText((text) =>
-                text
-                    .setPlaceholder("Inbox/AI Training.md")
-                    .setValue(this.plugin.data.settings.targetAppendFilePath)
-                    .onChange((value) => {
-                        applySettingsUpdate(async () => {
-                            this.plugin.data.settings.targetAppendFilePath = value.trim();
                             await this.plugin.savePluginData();
                         });
                     }),
