@@ -49,6 +49,8 @@ export interface SRSettings {
 
     // Quick append buttons
     quickAppendCardToFileBtn: string;
+    appendContentPrefix: string;
+    appendContentSuffix: string;
     targetAppendFilePath: string;
     quickAppendContentBtn: string;
 
@@ -120,8 +122,10 @@ export const DEFAULT_SETTINGS: SRSettings = {
 
     // Quick append buttons
     quickAppendCardToFileBtn: "Copy To AI-Train",
-    quickAppendContentBtn: " #delete",
+    appendContentPrefix: "- [ ]",
+    appendContentSuffix: "\n---\n",
     targetAppendFilePath: "",
+    quickAppendContentBtn: " #delete",
 
     // Audio autoplay
     autoPlayAudioOnFront: true,

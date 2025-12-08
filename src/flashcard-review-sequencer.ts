@@ -332,8 +332,6 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
     }
 
     async appendCurrentQuestionToUserDefinedFile(): Promise<void> {
-        const originalText = this.currentQuestion.questionText.actualQuestion;
-        const contentToAppend = `\n- [ ] ${originalText}`;
-        await DataStore.getInstance().appendToTargetNote(contentToAppend);
+        await DataStore.getInstance().appendToTargetNote(this.currentQuestion.questionText.actualQuestion);
     }
 }

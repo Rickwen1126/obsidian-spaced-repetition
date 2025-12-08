@@ -70,7 +70,10 @@ export class StoreInNotes implements IDataStore {
 
     async appendToTargetNote(content: string): Promise<void> {
         if (this.appendTargetFile) {
-            await this.appendTargetFile.append(content);
+            const prefix = this.settings.appendContentPrefix || "";
+            const suffix = this.settings.appendContentSuffix || "";
+            const contentWithPrefixSuffix = prefix + content + suffix;
+            await this.appendTargetFile.append(contentWithPrefixSuffix);
         } else {
             console.warn("SR: Append target file not configured or not found.");
         }

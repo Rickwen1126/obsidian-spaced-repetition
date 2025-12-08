@@ -738,6 +738,50 @@ export class SRSettingTab extends PluginSettingTab {
                     }),
             );
         new Setting(containerEl)
+            .setName("Append Content Prefix")
+            .setDesc(
+                "Text to add before the card content. Use \\\\n for newline, \\\\t for tab, \\\\\\\\ for backslash.",
+            )
+            .addTextArea((text) =>
+                text
+                    .setPlaceholder("e.g., ---\\n")
+                    .setValue(this.plugin.data.settings.appendContentPrefix)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            // Convert escape sequences
+                            const processed = value
+                                .replace(/\\n/g, "\n")
+                                .replace(/\\t/g, "\t")
+                                .replace(/\\\\/g, "\\");
+
+                            this.plugin.data.settings.appendContentPrefix = processed;
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Append Content Suffix")
+            .setDesc(
+                "Text to add after the card content. Use \\\\n for newline, \\\\t for tab, \\\\\\\\ for backslash.",
+            )
+            .addTextArea((text) =>
+                text
+                    .setPlaceholder("e.g., \\n---\\n")
+                    .setValue(this.plugin.data.settings.appendContentSuffix)
+                    .onChange((value) => {
+                        applySettingsUpdate(async () => {
+                            // Convert escape sequences
+                            const processed = value
+                                .replace(/\\n/g, "\n")
+                                .replace(/\\t/g, "\t")
+                                .replace(/\\\\/g, "\\");
+
+                            this.plugin.data.settings.appendContentSuffix = processed;
+                            await this.plugin.savePluginData();
+                        });
+                    }),
+            );
+        new Setting(containerEl)
             .setName("Target Append File Path")
             .setDesc(
                 "File path where Quick Copy Button will copy card content (e.g., 'Inbox/AI Training.md'). Leave empty to disable.",
