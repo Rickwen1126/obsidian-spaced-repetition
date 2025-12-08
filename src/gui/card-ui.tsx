@@ -223,7 +223,9 @@ export class CardUI {
         );
 
         // Auto-play audio in front card
-        this._autoplayAudio(this.content);
+        if (this.settings.autoPlayAudioOnFront) {
+            this._autoplayAudio(this.content, this.settings.audioIndexOnFront);
+        }
 
         // Set scroll position back to top
         this.content.scrollTop = 0;
@@ -669,7 +671,9 @@ export class CardUI {
         );
 
         // Auto-play audio in back card
-        this._autoplayAudio(this.content);
+        if (this.settings.autoPlayAudioOnBack) {
+            this._autoplayAudio(this.content, this.settings.audioIndexOnBack);
+        }
 
         // Show response buttons
         this.answerButton.addClass("sr-is-hidden");
@@ -701,19 +705,18 @@ export class CardUI {
     }
 
     /**
-     * Auto-play the first audio element in the container
+     * Auto-play audio element at specified index
      * @param container - The HTML container to search for audio elements
+     * @param index - The index of audio element to play (0-3)
      */
-    private _autoplayAudio(container: HTMLElement): void {
+    private _autoplayAudio(container: HTMLElement, index: number): void {
         // Delay execution to wait for Obsidian's markdown rendering to complete
         setTimeout(() => {
             const audioElements = container.querySelectorAll("audio");
 
-            if (audioElements.length > 0) {
-                // Only play the first audio to avoid multiple simultaneous playback
-                const firstAudio = audioElements[0] as HTMLAudioElement;
-
-                firstAudio.play().catch((error) => {
+            if (audioElements.length > index) {
+                const audio = audioElements[index] as HTMLAudioElement;
+                audio.play().catch((error) => {
                     // Silent handling if autoplay fails
                     console.debug("Audio autoplay failed:", error);
                 });

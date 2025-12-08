@@ -768,6 +768,71 @@ export class SRSettingTab extends PluginSettingTab {
                     }),
             );
 
+        containerEl.createEl("h3", { text: "Audio Autoplay" });
+        new Setting(containerEl)
+            .setName("Autoplay Audio on Front")
+            .setDesc("Automatically play audio when the front of the card is displayed")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.autoPlayAudioOnFront)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.autoPlayAudioOnFront = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+
+        new Setting(containerEl)
+            .setName("Audio Index on Front")
+            .setDesc(
+                "Which audio file to play on front (0-3). Use 0 for first audio, 1 for second, etc. Normal usage: front has one audio file at index 0.",
+            )
+            .addDropdown((dropdown) =>
+                dropdown
+                    .addOptions({
+                        "0": "First audio (index 0)",
+                        "1": "Second audio (index 1)",
+                        "2": "Third audio (index 2)",
+                        "3": "Fourth audio (index 3)",
+                    })
+                    .setValue(this.plugin.data.settings.audioIndexOnFront.toString())
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.audioIndexOnFront = Number.parseInt(value);
+                        await this.plugin.savePluginData();
+                    }),
+            );
+
+        new Setting(containerEl)
+            .setName("Autoplay Audio on Back")
+            .setDesc("Automatically play audio when the back of the card is displayed")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.autoPlayAudioOnBack)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.autoPlayAudioOnBack = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+
+        new Setting(containerEl)
+            .setName("Audio Index on Back")
+            .setDesc(
+                "Which audio file to play on back (0-3). Use 0 for first audio, 1 for second, etc. Normal usage: if front has one audio, back audio should use index 1 (second audio in the combined content).",
+            )
+            .addDropdown((dropdown) =>
+                dropdown
+                    .addOptions({
+                        "0": "First audio (index 0)",
+                        "1": "Second audio (index 1)",
+                        "2": "Third audio (index 2)",
+                        "3": "Fourth audio (index 3)",
+                    })
+                    .setValue(this.plugin.data.settings.audioIndexOnBack.toString())
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.audioIndexOnBack = Number.parseInt(value);
+                        await this.plugin.savePluginData();
+                    }),
+            );
+
         containerEl.createEl("h3", { text: t("GROUP_FLASHCARDS_NOTES") });
         new Setting(containerEl)
             .setName(t("FLASHCARD_EASY_LABEL"))

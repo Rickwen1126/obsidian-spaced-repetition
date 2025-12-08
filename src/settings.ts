@@ -52,6 +52,12 @@ export interface SRSettings {
     targetAppendFilePath: string;
     quickAppendContentBtn: string;
 
+    // Audio autoplay
+    autoPlayAudioOnFront: boolean;
+    autoPlayAudioOnBack: boolean;
+    audioIndexOnFront: number;
+    audioIndexOnBack: number;
+
     // algorithm
     algorithm: string;
     baseEase: number;
@@ -116,6 +122,12 @@ export const DEFAULT_SETTINGS: SRSettings = {
     quickAppendCardToFileBtn: "Copy To AI-Train",
     quickAppendContentBtn: " #delete",
     targetAppendFilePath: "",
+
+    // Audio autoplay
+    autoPlayAudioOnFront: true,
+    autoPlayAudioOnBack: true,
+    audioIndexOnFront: 0,
+    audioIndexOnBack: 1,
 
     // algorithm
     algorithm: Algorithm.SM_2_OSR,

@@ -449,8 +449,13 @@ export default class SRPlugin extends Plugin {
     private updateAppendTargetFile(): void {
         const store = DataStore.instance;
         if (store instanceof StoreInNotes) {
-            const targetPath = this.data.settings.targetAppendFilePath;
+            let targetPath = this.data.settings.targetAppendFilePath;
             if (targetPath) {
+                // Add .md extension if not already present
+                if (!targetPath.endsWith(".md")) {
+                    targetPath += ".md";
+                }
+
                 const file = this.app.vault.getAbstractFileByPath(targetPath);
                 if (file instanceof TFile) {
                     store.appendTargetFile = new SrTFile(
