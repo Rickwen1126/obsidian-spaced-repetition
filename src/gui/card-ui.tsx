@@ -200,7 +200,6 @@ export class CardUI {
     // #region -> Functions & helpers
 
     private async _drawContent() {
-
         // Pollution: prioritize getting card from redoCardList (peek)
         const cardData = this._getCardData();
 
@@ -616,7 +615,7 @@ export class CardUI {
 
     private _createResponseButtons() {
         this._createShowAnswerButton();
-        this._createResetButton();  // 在 response 層級建立 Reset 按鈕
+        this._createResetButton(); // 在 response 層級建立 Reset 按鈕
         this._createHardButton();
         this._createGoodButton();
         this._createEasyButton();
