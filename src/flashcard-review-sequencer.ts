@@ -333,7 +333,7 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
 
     async appendCurrentQuestionToUserDefinedFile(): Promise<void> {
         await DataStore.getInstance().appendToTargetNote(
-            this.currentQuestion.questionText.actualQuestion,
+            this.currentQuestion.questionText.original,
         );
     }
 }
