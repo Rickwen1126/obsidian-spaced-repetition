@@ -1,33 +1,33 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/typescript-node
 {
-	"name": "Node.js & TypeScript",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	"image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
-	"features": {
-		"ghcr.io/devcontainers/features/git:1": {}
-	},
-	 "initializeCommand": "mkdir -p ~/.claude-container-auth/.claude && security find-generic-password -s 'Claude Code-credentials' -w > ~/.claude-container-auth/.claude/.credentials.json && cp ~/.claude.json ~/.claude-container-auth/",
-  
-  	"mounts": [
-    "source=${localEnv:HOME}/.claude-container-auth/.claude,target=/tmp/.claude,type=bind,readonly",
-    "source=${localEnv:HOME}/.claude-container-auth/.claude.json,target=/tmp/.claude.json,type=bind,readonly"
-  	],
-  
-  	"postStartCommand": "mkdir -p ~/.claude && cp /tmp/.claude/.credentials.json ~/.claude/ && cp /tmp/.claude.json ~/.claude.json && chmod 700 ~/.claude && chmod 600 ~/.claude/.credentials.json ~/.claude.json && npm install -g @anthropic-ai/claude-code"
+    "name": "Node.js & TypeScript",
+    // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+    "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
+    "features": {
+        "ghcr.io/devcontainers/features/git:1": {}
+    },
+    "initializeCommand": "mkdir -p ~/.claude-container-auth/.claude && security find-generic-password -s 'Claude Code-credentials' -w > ~/.claude-container-auth/.claude/.credentials.json && cp ~/.claude.json ~/.claude-container-auth/",
 
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
+    "mounts": [
+        "source=${localEnv:HOME}/.claude-container-auth/.claude,target=/tmp/.claude,type=bind,readonly",
+        "source=${localEnv:HOME}/.claude-container-auth/.claude.json,target=/tmp/.claude.json,type=bind,readonly"
+    ],
 
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
+    "postStartCommand": "mkdir -p ~/.claude && cp /tmp/.claude/.credentials.json ~/.claude/ && cp /tmp/.claude.json ~/.claude.json && chmod 700 ~/.claude && chmod 600 ~/.claude/.credentials.json ~/.claude.json && npm install -g @anthropic-ai/claude-code"
 
-	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "yarn install",
+    // Features to add to the dev container. More info: https://containers.dev/features.
+    // "features": {},
 
-	// Configure tool-specific properties.
-	// "customizations": {},
+    // Use 'forwardPorts' to make a list of ports inside the container available locally.
+    // "forwardPorts": [],
 
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
+    // Use 'postCreateCommand' to run commands after the container is created.
+    // "postCreateCommand": "yarn install",
+
+    // Configure tool-specific properties.
+    // "customizations": {},
+
+    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+    // "remoteUser": "root"
 }
