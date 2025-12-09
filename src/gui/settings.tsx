@@ -814,6 +814,76 @@ export class SRSettingTab extends PluginSettingTab {
 
         containerEl.createEl("h3", { text: "Audio Autoplay" });
         new Setting(containerEl)
+            .setName("Auto-play audio on front")
+            .setDesc("Automatically play audio when showing the front of the card")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.autoPlayAudioOnFront)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.autoPlayAudioOnFront = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Audio index on front")
+            .setDesc("Which audio element to play on front (0-3, 0 = first audio)")
+            .addSlider((slider) =>
+                slider
+                    .setLimits(0, 3, 1)
+                    .setValue(this.plugin.data.settings.audioIndexOnFront)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.audioIndexOnFront = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Loop audio on front")
+            .setDesc("Continuously loop the audio on front until card is advanced")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.loopAudioOnFront)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.loopAudioOnFront = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Auto-play audio on back")
+            .setDesc("Automatically play audio when showing the back of the card")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.autoPlayAudioOnBack)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.autoPlayAudioOnBack = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Audio index on back")
+            .setDesc("Which audio element to play on back (0-3, 0 = first audio)")
+            .addSlider((slider) =>
+                slider
+                    .setLimits(0, 3, 1)
+                    .setValue(this.plugin.data.settings.audioIndexOnBack)
+                    .setDynamicTooltip()
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.audioIndexOnBack = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
+            .setName("Loop audio on back")
+            .setDesc("Continuously loop the audio on back until next card")
+            .addToggle((toggle) =>
+                toggle
+                    .setValue(this.plugin.data.settings.loopAudioOnBack)
+                    .onChange(async (value) => {
+                        this.plugin.data.settings.loopAudioOnBack = value;
+                        await this.plugin.savePluginData();
+                    }),
+            );
+        new Setting(containerEl)
             .setName("Autoplay Audio on Front")
             .setDesc("Automatically play audio when the front of the card is displayed")
             .addToggle((toggle) =>

@@ -59,6 +59,8 @@ export interface SRSettings {
     autoPlayAudioOnBack: boolean;
     audioIndexOnFront: number;
     audioIndexOnBack: number;
+    loopAudioOnFront: boolean;
+    loopAudioOnBack: boolean;
 
     // algorithm
     algorithm: string;
@@ -132,6 +134,8 @@ export const DEFAULT_SETTINGS: SRSettings = {
     autoPlayAudioOnBack: true,
     audioIndexOnFront: 0,
     audioIndexOnBack: 1,
+    loopAudioOnFront: false,
+    loopAudioOnBack: false,
 
     // algorithm
     algorithm: Algorithm.SM_2_OSR,

@@ -75,6 +75,8 @@ export class CardUI {
     public answerButton: HTMLButtonElement;
     public lastPressed: number;
 
+    private currentAudio: HTMLAudioElement | null = null;
+
     private chosenDeck: Deck | null;
     private totalCardsInSession: number = 0;
     private totalDecksInSession: number = 0;
@@ -190,6 +192,7 @@ export class CardUI {
      * Closes the FlashcardView
      */
     close() {
+        this._stopCurrentAudio();
         this.hide();
         document.removeEventListener("keydown", this._keydownHandler);
 
@@ -230,9 +233,21 @@ export class CardUI {
             cardData.question.questionText.textDirection,
         );
 
+        // Set loop property for the specified audio index based on settings
+        this._setAudioLoopProperty(
+            this.content,
+            this.settings.audioIndexOnFront,
+            this.settings.loopAudioOnFront,
+        );
+
         // Auto-play audio in front card
+        this._stopCurrentAudio();
         if (this.settings.autoPlayAudioOnFront) {
-            this._autoplayAudio(this.content, this.settings.audioIndexOnFront);
+            this._autoplayAudio(
+                this.content,
+                this.settings.audioIndexOnFront,
+                this.settings.loopAudioOnFront,
+            );
         }
 
         // Set scroll position back to top
@@ -737,9 +752,38 @@ export class CardUI {
             cardData.question.questionText.textDirection,
         );
 
+        // Set loop property for both front and back audio elements
+        // For non-cloze cards: front audio persists, so we need to maintain its loop setting
+        // For cloze cards: content is cleared, so we only have back audio
+        if (cardData.question.questionType !== CardType.Cloze) {
+            // Non-cloze: set loop for both front and back audio
+            this._setAudioLoopProperty(
+                this.content,
+                this.settings.audioIndexOnFront,
+                this.settings.loopAudioOnFront,
+            );
+            this._setAudioLoopProperty(
+                this.content,
+                this.settings.audioIndexOnBack,
+                this.settings.loopAudioOnBack,
+            );
+        } else {
+            // Cloze: only set loop for back audio (front is cleared)
+            this._setAudioLoopProperty(
+                this.content,
+                this.settings.audioIndexOnBack,
+                this.settings.loopAudioOnBack,
+            );
+        }
+
         // Auto-play audio in back card
+        this._stopCurrentAudio();
         if (this.settings.autoPlayAudioOnBack) {
-            this._autoplayAudio(this.content, this.settings.audioIndexOnBack);
+            this._autoplayAudio(
+                this.content,
+                this.settings.audioIndexOnBack,
+                this.settings.loopAudioOnBack,
+            );
         }
 
         // Show response buttons
@@ -773,23 +817,53 @@ export class CardUI {
     }
 
     /**
+     * Set loop property for audio element at specified index
+     * @param container - The HTML container to search for audio elements
+     * @param index - The index of audio element to set loop property (0-3)
+     * @param loop - Whether to enable loop for the specified audio element
+     */
+    private _setAudioLoopProperty(container: HTMLElement, index: number, loop: boolean): void {
+        // Delay execution to wait for Obsidian's markdown rendering to complete
+        setTimeout(() => {
+            const audioElements = container.querySelectorAll("audio");
+            if (audioElements.length > index) {
+                (audioElements[index] as HTMLAudioElement).loop = loop;
+            }
+        }, 100); // Small delay to ensure audio elements are rendered
+    }
+
+    /**
      * Auto-play audio element at specified index
      * @param container - The HTML container to search for audio elements
      * @param index - The index of audio element to play (0-3)
+     * @param loop - Whether to loop the audio
      */
-    private _autoplayAudio(container: HTMLElement, index: number): void {
+    private _autoplayAudio(container: HTMLElement, index: number, loop: boolean = false): void {
         // Delay execution to wait for Obsidian's markdown rendering to complete
         setTimeout(() => {
             const audioElements = container.querySelectorAll("audio");
 
             if (audioElements.length > index) {
                 const audio = audioElements[index] as HTMLAudioElement;
+                audio.loop = loop;
+                this.currentAudio = audio;
                 audio.play().catch((error) => {
                     // Silent handling if autoplay fails
                     console.debug("Audio autoplay failed:", error);
                 });
             }
         }, 150); // 150ms delay for rendering engine
+    }
+
+    /**
+     * Stop currently playing audio
+     */
+    private _stopCurrentAudio(): void {
+        if (this.currentAudio) {
+            this.currentAudio.pause();
+            this.currentAudio.currentTime = 0;
+            this.currentAudio = null;
+        }
     }
 
     private _keydownHandler = (e: KeyboardEvent) => {
