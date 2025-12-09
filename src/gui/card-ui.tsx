@@ -200,7 +200,6 @@ export class CardUI {
     // #region -> Functions & helpers
 
     private async _drawContent() {
-        this.resetButton.disabled = true;
 
         // Pollution: prioritize getting card from redoCardList (peek)
         const cardData = this._getCardData();
@@ -314,7 +313,6 @@ export class CardUI {
 
     private _createCardControls() {
         this._createEditButton();
-        this._createResetButton();
         this._createRedoButton();
         this._createCardInfoButton();
         this._createSkipButton();
@@ -331,8 +329,9 @@ export class CardUI {
     }
 
     private _createResetButton() {
-        this.resetButton = this.controls.createEl("button");
-        this.resetButton.addClasses(["sr-button", "sr-reset-button"]);
+        // 在 response div 中建立 Reset Progress 按鈕
+        this.resetButton = this.response.createEl("button");
+        this.resetButton.addClasses(["sr-response-button", "sr-reset-button", "sr-is-hidden"]);
         setIcon(this.resetButton, "refresh-cw");
         this.resetButton.setAttribute("aria-label", t("RESET_CARD_PROGRESS"));
         this.resetButton.addEventListener("click", () => {
@@ -617,6 +616,7 @@ export class CardUI {
 
     private _createResponseButtons() {
         this._createShowAnswerButton();
+        this._createResetButton();  // 在 response 層級建立 Reset 按鈕
         this._createHardButton();
         this._createGoodButton();
         this._createEasyButton();
@@ -628,6 +628,7 @@ export class CardUI {
         this.hardButton.addClass("sr-is-hidden");
         this.goodButton.addClass("sr-is-hidden");
         this.easyButton.addClass("sr-is-hidden");
+        this.resetButton.addClass("sr-is-hidden");
     }
 
     private _createShowAnswerButton() {
@@ -715,8 +716,6 @@ export class CardUI {
 
         this.mode = FlashcardMode.Back;
 
-        this.resetButton.disabled = false;
-
         // Pollution: prioritize getting card from redoCardList (peek)
         const cardData = this._getCardData();
 
@@ -746,6 +745,7 @@ export class CardUI {
 
         // Show response buttons
         this.answerButton.addClass("sr-is-hidden");
+        this.resetButton.removeClass("sr-is-hidden");
         this.hardButton.removeClass("sr-is-hidden");
         this.easyButton.removeClass("sr-is-hidden");
 
