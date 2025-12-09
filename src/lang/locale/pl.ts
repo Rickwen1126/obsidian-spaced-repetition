@@ -10,6 +10,7 @@ export default {
     SKIP: "Pomiń",
     EDIT_CARD: "Edytuj kartę",
     RESET_CARD_PROGRESS: "Zresetuj postęp karty",
+    UNDO_LAST_REVIEW: "Cofnij ostatni przegląd",
     HARD: "Trudne",
     GOOD: "Średnio Trudne",
     EASY: "Łatwe",

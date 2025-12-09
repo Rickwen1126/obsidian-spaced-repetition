@@ -60,6 +60,7 @@ export class CardUI {
     public controls: HTMLDivElement;
     public editButton: HTMLButtonElement;
     public resetButton: HTMLButtonElement;
+    public redoButton: HTMLButtonElement;
     public infoButton: HTMLButtonElement;
     public skipButton: HTMLButtonElement;
 
@@ -156,6 +157,9 @@ export class CardUI {
         this.totalCardsInSession = deckStats.cardsInQueueCount;
         this.totalDecksInSession = deckStats.decksInQueueOfThisDeckCount;
 
+        // Clear redo lists on session start
+        this.reviewSequencer.clearRedoLists();
+
         await this._drawContent();
 
         this.view.removeClass("sr-is-hidden");
@@ -188,12 +192,18 @@ export class CardUI {
     close() {
         this.hide();
         document.removeEventListener("keydown", this._keydownHandler);
+
+        // Clear redo lists on session close
+        this.reviewSequencer.clearRedoLists();
     }
 
     // #region -> Functions & helpers
 
     private async _drawContent() {
         this.resetButton.disabled = true;
+
+        // Pollution: prioritize getting card from redoCardList (peek)
+        const cardData = this._getCardData();
 
         // Update current deck info
         this.mode = FlashcardMode.Front;
@@ -213,13 +223,13 @@ export class CardUI {
         const wrapper: RenderMarkdownWrapper = new RenderMarkdownWrapper(
             this.app,
             this.plugin,
-            this._currentNote.filePath,
+            cardData.note.filePath,
         );
 
         await wrapper.renderMarkdownWrapper(
-            this._currentCard.front.trimStart(),
+            cardData.card.front.trimStart(),
             this.content,
-            this._currentQuestion.questionText.textDirection,
+            cardData.question.questionText.textDirection,
         );
 
         // Auto-play audio in front card
@@ -232,6 +242,34 @@ export class CardUI {
 
         // Update response buttons
         this._resetResponseButtons();
+
+        // Update Redo button state
+        this.redoButton.disabled = !this.reviewSequencer.canRedo();
+    }
+
+    /**
+     * Pollution function: prioritize getting card from redoCardList (peek, returns copy)
+     */
+    private _getCardData(): {
+        card: Card;
+        question: Question;
+        note: Note;
+    } {
+        const redoCard = this.reviewSequencer.peekRedoCard();
+        if (redoCard) {
+            return {
+                card: redoCard.card,
+                question: redoCard.question,
+                note: redoCard.question.note,
+            };
+        }
+
+        // Follow original sequencer flow
+        return {
+            card: this._currentCard,
+            question: this._currentQuestion,
+            note: this._currentNote,
+        };
     }
 
     private get _currentCard(): Card {
@@ -265,11 +303,19 @@ export class CardUI {
         else this.backToDeck();
     }
 
+    private async _processRedo(): Promise<void> {
+        if (!this.reviewSequencer.canRedo()) return;
+
+        await this.reviewSequencer.processRedo();
+        await this._showNextCard();
+    }
+
     // #region -> Controls
 
     private _createCardControls() {
         this._createEditButton();
         this._createResetButton();
+        this._createRedoButton();
         this._createCardInfoButton();
         this._createSkipButton();
     }
@@ -291,6 +337,17 @@ export class CardUI {
         this.resetButton.setAttribute("aria-label", t("RESET_CARD_PROGRESS"));
         this.resetButton.addEventListener("click", () => {
             this._processReview(ReviewResponse.Reset);
+        });
+    }
+
+    private _createRedoButton() {
+        this.redoButton = this.controls.createEl("button");
+        this.redoButton.addClasses(["sr-button", "sr-redo-button"]);
+        setIcon(this.redoButton, "undo-2");
+        this.redoButton.setAttribute("aria-label", t("UNDO_LAST_REVIEW"));
+        this.redoButton.disabled = true;
+        this.redoButton.addEventListener("click", async () => {
+            await this._processRedo();
         });
     }
 
@@ -477,9 +534,12 @@ export class CardUI {
         const chosenDeckStats = this.reviewSequencer.getDeckStats(chosenDeck.getTopicPath());
 
         this.chosenDeckName.setText(`${chosenDeck.deckName}`);
-        this.chosenDeckCardCounter.setText(
-            `${this.totalCardsInSession - chosenDeckStats.cardsInQueueCount}/${this.totalCardsInSession}`,
-        );
+
+        // Pollution: include redo card count in total cards
+        const redoCount = this.reviewSequencer.getRedoCardCount();
+        const completed = this.totalCardsInSession - chosenDeckStats.cardsInQueueCount - redoCount;
+        const total = this.totalCardsInSession;
+        this.chosenDeckCardCounter.setText(`${completed}/${total}`);
 
         if (chosenDeck.subdecks.length === 0) {
             if (!this.chosenDeckSubDeckCounterWrapper.hasClass("sr-is-hidden")) {
@@ -514,9 +574,15 @@ export class CardUI {
         const isRandomMode = this.settings.flashcardCardOrder === "EveryCardRandomDeckAndCard";
         if (!isRandomMode) {
             const currentDeckStats = this.reviewSequencer.getDeckStats(currentDeck.getTopicPath());
-            this.currentDeckCardCounter.setText(
-                `${this.currentDeckTotalCardsInQueue - currentDeckStats.cardsInQueueOfThisDeckCount}/${this.currentDeckTotalCardsInQueue}`,
-            );
+
+            // Pollution: include redo card count in current deck total
+            const redoCount = this.reviewSequencer.getRedoCardCount();
+            const completed =
+                this.currentDeckTotalCardsInQueue -
+                currentDeckStats.cardsInQueueOfThisDeckCount -
+                redoCount;
+            const total = this.currentDeckTotalCardsInQueue;
+            this.currentDeckCardCounter.setText(`${completed}/${total}`);
         }
     }
 
@@ -651,8 +717,11 @@ export class CardUI {
 
         this.resetButton.disabled = false;
 
+        // Pollution: prioritize getting card from redoCardList (peek)
+        const cardData = this._getCardData();
+
         // Show answer text
-        if (this._currentQuestion.questionType !== CardType.Cloze) {
+        if (cardData.question.questionType !== CardType.Cloze) {
             const hr: HTMLElement = document.createElement("hr");
             this.content.appendChild(hr);
         } else {
@@ -662,12 +731,12 @@ export class CardUI {
         const wrapper: RenderMarkdownWrapper = new RenderMarkdownWrapper(
             this.app,
             this.plugin,
-            this._currentNote.filePath,
+            cardData.note.filePath,
         );
         wrapper.renderMarkdownWrapper(
-            this._currentCard.back,
+            cardData.card.back,
             this.content,
-            this._currentQuestion.questionText.textDirection,
+            cardData.question.questionText.textDirection,
         );
 
         // Auto-play audio in back card
@@ -792,6 +861,12 @@ export class CardUI {
                 }
                 this._processReview(ReviewResponse.Reset);
                 consumeKeyEvent();
+                break;
+            case "KeyZ":
+                if ((e.ctrlKey || e.metaKey) && this.reviewSequencer.canRedo()) {
+                    this._processRedo();
+                    consumeKeyEvent();
+                }
                 break;
             default:
                 break;

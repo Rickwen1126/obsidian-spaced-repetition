@@ -11,6 +11,7 @@ export default {
     SKIP: "Pular",
     EDIT_CARD: "Editar Cartão",
     RESET_CARD_PROGRESS: "Reiniciar o Progresso da Carta",
+    UNDO_LAST_REVIEW: "Desfazer última revisão",
     HARD: "Difícil",
     GOOD: "OK",
     EASY: "Fácil",

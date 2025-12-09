@@ -10,6 +10,7 @@ export default {
     SKIP: "Skip",
     EDIT_CARD: "Edit Card",
     RESET_CARD_PROGRESS: "Reset card's progress",
+    UNDO_LAST_REVIEW: "Undo last review",
     HARD: "Hard",
     GOOD: "Good",
     EASY: "Easy",

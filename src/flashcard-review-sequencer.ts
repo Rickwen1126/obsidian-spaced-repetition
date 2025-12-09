@@ -13,6 +13,17 @@ import { IQuestionPostponementList } from "src/question-postponement-list";
 import { SRSettings } from "src/settings";
 import { TopicPath } from "src/topic-path";
 import { globalDateProvider } from "src/utils/dates";
+import { deepClone } from "src/utils/types";
+
+/**
+ * Data structure for storing undo information about a reviewed card.
+ */
+export interface ReviewUndoData {
+    card: Card;
+    question: Question;
+    hadScheduleBeforeReview: boolean;
+    oldScheduleInfo: RepItemScheduleInfo | null;
+}
 
 export interface IFlashcardReviewSequencer {
     get hasCurrentCard(): boolean;
@@ -31,6 +42,13 @@ export interface IFlashcardReviewSequencer {
     processReview(response: ReviewResponse): Promise<void>;
     updateCurrentQuestionText(text: string): Promise<void>;
     appendCurrentQuestionToUserDefinedFile(): Promise<void>;
+
+    // Redo functionality
+    canRedo(): boolean;
+    peekRedoCard(): { card: Card; question: Question } | null;
+    getRedoCardCount(): number;
+    processRedo(): Promise<void>;
+    clearRedoLists(): void;
 }
 
 /**
@@ -109,6 +127,11 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
     private srsAlgorithm: ISrsAlgorithm;
     private questionPostponementList: IQuestionPostponementList;
     private dueDateFlashcardHistogram: DueDateHistogram;
+
+    // Redo functionality: stores reviewed cards for undo
+    private reviewedCardList: ReviewUndoData[] = [];
+    // Redo functionality: stores cards that have been undone for redo display
+    private redoCardList: ReviewUndoData[] = [];
 
     constructor(
         reviewMode: FlashcardReviewMode,
@@ -229,6 +252,61 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
     }
 
     async processReview(response: ReviewResponse): Promise<void> {
+        // Check if processing a redo card
+        if (this.redoCardList.length > 0) {
+            // Pop redo card
+            const redoCard = this.redoCardList.pop()!;
+
+            switch (this.reviewMode) {
+                case FlashcardReviewMode.Review: {
+                    // Backup old schedule (state before this review)
+                    const oldScheduleInfo = redoCard.card.scheduleInfo
+                        ? deepClone(redoCard.card.scheduleInfo)
+                        : null;
+
+                    // Calculate and write new schedule
+                    redoCard.card.scheduleInfo = this.determineCardSchedule(
+                        response,
+                        redoCard.card,
+                    );
+                    await DataStore.getInstance().questionWriteSchedule(redoCard.question);
+
+                    // Backup to reviewedCardList (store old schedule)
+                    // Note: Store reference to card/question (circular reference issues)
+                    this.reviewedCardList.push({
+                        card: redoCard.card,
+                        question: redoCard.question,
+                        hadScheduleBeforeReview: true, // redo card always has schedule
+                        oldScheduleInfo: oldScheduleInfo, // store old, not new!
+                    });
+
+                    // Return directly, don't go through normal flow
+                    // UI layer's _showNextCard() will handle next card automatically
+                    return;
+                }
+                case FlashcardReviewMode.Cram: {
+                    // Cram mode doesn't write file, just pop
+                    // UI layer's _showNextCard() will handle next card automatically
+                    return;
+                }
+            }
+        }
+
+        // Normal flow: backup current card
+        // Note: We store reference to card/question (not deep clone) because:
+        // 1. Card/Question have circular references that can't be JSON cloned
+        // 2. We only need to track the scheduleInfo for undo
+        const oldScheduleInfo = this.currentCard.scheduleInfo
+            ? deepClone(this.currentCard.scheduleInfo)
+            : null;
+        this.reviewedCardList.push({
+            card: this.currentCard,
+            question: this.currentQuestion,
+            hadScheduleBeforeReview: this.currentCard.hasSchedule,
+            oldScheduleInfo: oldScheduleInfo,
+        });
+
+        // Execute original logic
         switch (this.reviewMode) {
             case FlashcardReviewMode.Review:
                 await this.processReviewReviewMode(response);
@@ -336,4 +414,67 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
             this.currentQuestion.questionText.original,
         );
     }
+
+    // #region Redo functionality
+
+    /**
+     * Check if redo is available (i.e., there are reviewed cards to undo)
+     */
+    canRedo(): boolean {
+        return this.reviewedCardList.length > 0;
+    }
+
+    /**
+     * Peek the top redo card (returns the card/question reference for display)
+     * Note: Card/Question have circular references, so we return the reference directly
+     */
+    peekRedoCard(): { card: Card; question: Question } | null {
+        if (this.redoCardList.length === 0) return null;
+
+        const undoData = this.redoCardList[this.redoCardList.length - 1];
+        return {
+            card: undoData.card,
+            question: undoData.question,
+        };
+    }
+
+    /**
+     * Get the count of redo cards
+     */
+    getRedoCardCount(): number {
+        return this.redoCardList.length;
+    }
+
+    /**
+     * Process redo: pop from reviewedCardList, restore old schedule, push to redoCardList
+     */
+    async processRedo(): Promise<void> {
+        if (this.reviewedCardList.length === 0) return;
+
+        // Pop the last reviewed card
+        const undoData = this.reviewedCardList.pop()!;
+
+        // Restore old schedule
+        if (!undoData.hadScheduleBeforeReview) {
+            undoData.card.scheduleInfo = null;
+        } else {
+            undoData.card.scheduleInfo = undoData.oldScheduleInfo;
+        }
+
+        // Write back to file
+        await DataStore.getInstance().questionWriteSchedule(undoData.question);
+
+        // Push to redoCardList
+        this.redoCardList.push(undoData);
+    }
+
+    /**
+     * Clear all redo lists (called when session ends)
+     */
+    clearRedoLists(): void {
+        this.reviewedCardList = [];
+        this.redoCardList = [];
+    }
+
+    // #endregion
 }

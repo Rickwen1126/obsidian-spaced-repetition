@@ -10,6 +10,7 @@ export default {
     SKIP: "Sauter",
     EDIT_CARD: "Modifier la carte",
     RESET_CARD_PROGRESS: "Remettre à zéro le niveau de cette carte",
+    UNDO_LAST_REVIEW: "Annuler la dernière révision",
     HARD: "Difficile",
     GOOD: "Correct",
     EASY: "Facile",

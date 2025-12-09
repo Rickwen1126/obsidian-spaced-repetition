@@ -13,6 +13,7 @@ export default {
     SKIP: "Überspringen",
     EDIT_CARD: "Karte bearbeiten",
     RESET_CARD_PROGRESS: "Kartenfortschritt zurücksetzten",
+    UNDO_LAST_REVIEW: "Letzte Überprüfung rückgängig",
     HARD: "Schwer",
     GOOD: "Gut",
     EASY: "Einfach",

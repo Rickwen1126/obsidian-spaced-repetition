@@ -10,6 +10,7 @@ export default {
     SKIP: "Atla",
     EDIT_CARD: "Kartı Düzenle",
     RESET_CARD_PROGRESS: "Kartın ilerlemesini sıfırla",
+    UNDO_LAST_REVIEW: "Son incelemeyi geri al",
     HARD: "Zor",
     GOOD: "Orta",
     EASY: "Kolay",

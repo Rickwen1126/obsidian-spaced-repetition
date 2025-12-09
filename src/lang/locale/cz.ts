@@ -10,6 +10,7 @@ export default {
     SKIP: "Skip",
     EDIT_CARD: "Edit Card",
     RESET_CARD_PROGRESS: "Vynulovat pokrok kartičky",
+    UNDO_LAST_REVIEW: "Undo last review",
     HARD: "Těžké",
     GOOD: "Dobré",
     EASY: "Jednoduché",

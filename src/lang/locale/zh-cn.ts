@@ -10,6 +10,7 @@ export default {
     SKIP: "略过",
     EDIT_CARD: "编辑卡片",
     RESET_CARD_PROGRESS: "重置卡片",
+    UNDO_LAST_REVIEW: "撤销上次复习",
     HARD: "较难",
     GOOD: "记得",
     EASY: "简单",

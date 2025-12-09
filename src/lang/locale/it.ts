@@ -10,6 +10,7 @@ export default {
     SKIP: "Salta",
     EDIT_CARD: "Modifica scheda",
     RESET_CARD_PROGRESS: "Ripristina i progressi della scheda",
+    UNDO_LAST_REVIEW: "Annulla ultima revisione",
     HARD: "Difficile",
     GOOD: "Buono",
     EASY: "Facile",

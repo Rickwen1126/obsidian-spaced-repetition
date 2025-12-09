@@ -1,0 +1,72 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "redoFeat@20251209",
+  "steps": [
+    {
+      "file": "src/flashcard-review-sequencer.ts",
+      "description": "加入兩個 card[] 資料結構: reviewedCardList & redoCardList",
+      "line": 102
+    },
+    {
+      "file": "src/flashcard-review-sequencer.ts",
+      "description": "在這裡 app current card 到 reviewedCardList，意思就是正常流程 review 的 card 我們暫存起來，其他原本的流程我們不碰",
+      "line": 231
+    },
+    {
+      "file": "src/flashcard-review-sequencer.ts",
+      "description": "加入 processRedo function\n主要工作：\n1. reviewedCardList pop last, redoCardList push 這張卡到 last\n2. popCard 的內容寫回 用  await DataStore.getInstance().questionWriteSchedule(this.currentQuestion) 寫回原本的資料\n3. 不做其他影響原本流程的邏輯，但改變來源資料",
+      "line": 230
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "加入 redoButton UI 還有 eventHandle 給你補全",
+      "line": 69
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "加入 _processRedo 針對 redo 按鈕的操作要 call flashcard-review-sequencer 裡新增的 processRedo,然後再 call this._showNextCard\n這個 fucntion 要給 redoButton 的 click eventhandle 使用",
+      "line": 248
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "這邊是 UI 顯示層，將 redoCardList len 加入顯示，也就是\nthis.currentDeckTotalCardsInQueue - currentDeckStats.cardsInQueueOfThisDeckCount + redoCardList.len 具體你再幫我潤過",
+      "line": 518
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "這邊也可能需要跟 step6 一樣處理，不過這裡可以討論一下再做，因為我喔搞不太清楚 \n_updateChosenDeckInfo\n_updateCurrentDeckInfo\n兩者具體差異",
+      "line": 481
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "我們從這邊開始污染 UI\n只要 redoCardList 有 card ，就一律優先從 redorCardList last 拿出來，但這邊不能走 pop ，只能用 peek",
+      "line": 219
+    },
+    {
+      "file": "src/flashcard-review-sequencer.ts",
+      "description": "最後一步回到這裡先把 redoCardList pop 然後讓這裡的原邏輯寫入原始資料內容就 return 後續都不要做（不碰原始任何流程）  ，因為 redoCardList 只要有 card ，那麼 UI 那邊一定以 redoCardList 優先顯示，只要點擊 easy or good or hard 進入 processReview 就會是 redoCard 優先處理",
+      "line": 255,
+      "selection": {
+        "start": {
+          "line": 1,
+          "character": 1
+        },
+        "end": {
+          "line": 1,
+          "character": 190
+        }
+      }
+    },
+    {
+      "file": "src/flashcard-review-sequencer.ts",
+      "description": "這邊同，step9，但是因為不用寫回資料，只要做 pop redocardlist 就好了",
+      "line": 292
+    },
+    {
+      "file": "src/gui/card-ui.tsx",
+      "description": "如果 ui 整個重來，需要清空 review & redo card list ，這邊你可以確認看看這個位置好不好",
+      "line": 148
+    }
+  ],
+  "ref": "Add-QuickAddContentBtn"
+}

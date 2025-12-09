@@ -39,3 +39,15 @@ export function mapRecord<T, U, V extends string | number | symbol>(
 }
 
 export type TabViewType = { type: string; viewCreator: ViewCreator };
+
+/**
+ * Deep clone an object using JSON serialization.
+ * Note: This doesn't work with functions, dates, or circular references.
+ * For simple data objects (like Card, Question schedules), this is sufficient.
+ */
+export function deepClone<T>(obj: T): T {
+    if (obj === null || obj === undefined) {
+        return obj;
+    }
+    return JSON.parse(JSON.stringify(obj));
+}
