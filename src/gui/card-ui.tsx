@@ -337,7 +337,7 @@ export class CardUI {
         this.editButton.addClasses(["sr-button", "sr-edit-button"]);
         setIcon(this.editButton, "edit");
         this.editButton.setAttribute("aria-label", t("EDIT_CARD"));
-        this.editButton.addEventListener("click", async () => {
+        this.editButton.addEventListener("click", () => {
             this.editClickHandler();
         });
     }

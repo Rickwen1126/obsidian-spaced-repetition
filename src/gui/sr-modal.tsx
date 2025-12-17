@@ -135,7 +135,8 @@ export class FlashcardModal extends Modal {
         );
         editModal
             .then(async (modifiedCardText) => {
-                this.reviewSequencer.updateCurrentQuestionText(modifiedCardText);
+                await this.reviewSequencer.updateCurrentQuestionText(modifiedCardText);
+                await this.flashcardView.refresh();
             })
             .catch((reason) => console.log(reason));
     }

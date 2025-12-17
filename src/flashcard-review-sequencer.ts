@@ -9,6 +9,7 @@ import { IDeckTreeIterator } from "src/deck-tree-iterator";
 import { DueDateHistogram } from "src/due-date-histogram";
 import { Note } from "src/note";
 import { Question, QuestionText } from "src/question";
+import { CardFrontBackUtil } from "src/question-type";
 import { IQuestionPostponementList } from "src/question-postponement-list";
 import { SRSettings } from "src/settings";
 import { TopicPath } from "src/topic-path";
@@ -403,8 +404,20 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
 
     async updateCurrentQuestionText(text: string): Promise<void> {
         const q: QuestionText = this.currentQuestion.questionText;
-
+        
+        // Update question text
         q.actualQuestion = text;
+
+        // Regenerate cards' front/back using CardFrontBackUtil
+        // This ensures the card's cached content matches the updated question
+        const cardType = this.currentQuestion.questionType;
+        const newFrontBacks = CardFrontBackUtil.expand(cardType, text, this.settings);
+        
+        // Update existing cards' front/back (preserve schedule and other info)
+        for (let i = 0; i < this.currentQuestion.cards.length && i < newFrontBacks.length; i++) {
+            this.currentQuestion.cards[i].front = newFrontBacks[i].front;
+            this.currentQuestion.cards[i].back = newFrontBacks[i].back;
+        }
 
         await DataStore.getInstance().questionWrite(this.currentQuestion);
     }
