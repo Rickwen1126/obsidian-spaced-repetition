@@ -123,7 +123,8 @@ export class FlashcardModal extends Modal {
     }
 
     private async _doEditQuestionText(): Promise<void> {
-        const currentQ: Question = this.reviewSequencer.currentQuestion;
+        const redoCard = this.reviewSequencer.peekRedoCard();
+        const currentQ: Question = redoCard ? redoCard.question : this.reviewSequencer.currentQuestion;
 
         // Just the question/answer text; without any preceding topic tag
         const textPrompt = currentQ.questionText.actualQuestion;

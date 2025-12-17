@@ -9,8 +9,8 @@ import { IDeckTreeIterator } from "src/deck-tree-iterator";
 import { DueDateHistogram } from "src/due-date-histogram";
 import { Note } from "src/note";
 import { Question, QuestionText } from "src/question";
-import { CardFrontBackUtil } from "src/question-type";
 import { IQuestionPostponementList } from "src/question-postponement-list";
+import { CardFrontBackUtil } from "src/question-type";
 import { SRSettings } from "src/settings";
 import { TopicPath } from "src/topic-path";
 import { globalDateProvider } from "src/utils/dates";
@@ -245,6 +245,10 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
     }
 
     skipCurrentCard(): void {
+        if (this.redoCardList.length > 0) {
+            this.redoCardList.pop();
+            return;
+        }
         this.cardSequencer.deleteCurrentQuestionFromAllDecks();
     }
 
@@ -260,6 +264,17 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
 
             switch (this.reviewMode) {
                 case FlashcardReviewMode.Review: {
+                    if (response === ReviewResponse.Reset) {
+                        // For reset on redo card:
+                        // 1. Calculate new schedule (New/Reset)
+                        redoCard.card.scheduleInfo = this.srsAlgorithm.cardGetResetSchedule();
+                        // 2. Write to file
+                        await DataStore.getInstance().questionWriteSchedule(redoCard.question);
+                        // 3. Push back to redo list (keep displayed for further action)
+                        this.redoCardList.push(redoCard);
+                        return;
+                    }
+
                     // Backup old schedule (state before this review)
                     const oldScheduleInfo = redoCard.card.scheduleInfo
                         ? deepClone(redoCard.card.scheduleInfo)
@@ -403,8 +418,29 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
     }
 
     async updateCurrentQuestionText(text: string): Promise<void> {
+        if (this.redoCardList.length > 0) {
+            const redoData = this.redoCardList[this.redoCardList.length - 1];
+            const q = redoData.question.questionText;
+
+            // Update question text
+            q.actualQuestion = text;
+
+            // Regenerate cards' front/back using CardFrontBackUtil
+            const cardType = redoData.question.questionType;
+            const newFrontBacks = CardFrontBackUtil.expand(cardType, text, this.settings);
+
+            // Update existing cards' front/back (preserve schedule and other info)
+            for (let i = 0; i < redoData.question.cards.length && i < newFrontBacks.length; i++) {
+                redoData.question.cards[i].front = newFrontBacks[i].front;
+                redoData.question.cards[i].back = newFrontBacks[i].back;
+            }
+
+            await DataStore.getInstance().questionWrite(redoData.question);
+            return;
+        }
+
         const q: QuestionText = this.currentQuestion.questionText;
-        
+
         // Update question text
         q.actualQuestion = text;
 
@@ -412,7 +448,7 @@ export class FlashcardReviewSequencer implements IFlashcardReviewSequencer {
         // This ensures the card's cached content matches the updated question
         const cardType = this.currentQuestion.questionType;
         const newFrontBacks = CardFrontBackUtil.expand(cardType, text, this.settings);
-        
+
         // Update existing cards' front/back (preserve schedule and other info)
         for (let i = 0; i < this.currentQuestion.cards.length && i < newFrontBacks.length; i++) {
             this.currentQuestion.cards[i].front = newFrontBacks[i].front;

@@ -328,6 +328,7 @@ export class CardUI {
     private _createCardControls() {
         this._createEditButton();
         this._createRedoButton();
+        this._createResetButton();
         this._createCardInfoButton();
         this._createSkipButton();
     }
@@ -343,13 +344,13 @@ export class CardUI {
     }
 
     private _createResetButton() {
-        // 在 response div 中建立 Reset Progress 按鈕
-        this.resetButton = this.response.createEl("button");
-        this.resetButton.addClasses(["sr-response-button", "sr-reset-button", "sr-is-hidden"]);
+        this.resetButton = this.controls.createEl("button");
+        this.resetButton.addClasses(["sr-button", "sr-reset-button"]);
         setIcon(this.resetButton, "refresh-cw");
         this.resetButton.setAttribute("aria-label", t("RESET_CARD_PROGRESS"));
-        this.resetButton.addEventListener("click", () => {
-            this._processReview(ReviewResponse.Reset);
+        this.resetButton.disabled = true;
+        this.resetButton.addEventListener("click", async () => {
+            await this._processReview(ReviewResponse.Reset);
         });
     }
 
@@ -456,13 +457,15 @@ export class CardUI {
     }
 
     private _displayCurrentCardInfoNotice() {
-        const schedule = this._currentCard.scheduleInfo;
+        // Use _getCardData to ensure we get the correct card (Redo vs Current)
+        const cardData = this._getCardData();
+        const schedule = cardData.card.scheduleInfo;
 
         const currentEaseStr = t("CURRENT_EASE_HELP_TEXT") + (schedule?.latestEase ?? t("NEW"));
         const currentIntervalStr =
             t("CURRENT_INTERVAL_HELP_TEXT") + textInterval(schedule?.interval, false);
         const generatedFromStr = t("CARD_GENERATED_FROM", {
-            notePath: this._currentQuestion.note.filePath,
+            notePath: cardData.note.filePath,
         });
 
         new Notice(currentEaseStr + "\n" + currentIntervalStr + "\n" + generatedFromStr);
@@ -630,7 +633,6 @@ export class CardUI {
 
     private _createResponseButtons() {
         this._createShowAnswerButton();
-        this._createResetButton(); // 在 response 層級建立 Reset 按鈕
         this._createHardButton();
         this._createGoodButton();
         this._createEasyButton();
@@ -642,7 +644,7 @@ export class CardUI {
         this.hardButton.addClass("sr-is-hidden");
         this.goodButton.addClass("sr-is-hidden");
         this.easyButton.addClass("sr-is-hidden");
-        this.resetButton.addClass("sr-is-hidden");
+        this.resetButton.disabled = true;
     }
 
     private _createShowAnswerButton() {
@@ -788,7 +790,7 @@ export class CardUI {
 
         // Show response buttons
         this.answerButton.addClass("sr-is-hidden");
-        this.resetButton.removeClass("sr-is-hidden");
+        this.resetButton.disabled = false;
         this.hardButton.removeClass("sr-is-hidden");
         this.easyButton.removeClass("sr-is-hidden");
 
