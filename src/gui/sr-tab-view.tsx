@@ -192,7 +192,9 @@ export class SRTabView extends ItemView {
 
     private async _doEditQuestionText(): Promise<void> {
         const redoCard = this.reviewSequencer.peekRedoCard();
-        const currentQ: Question = redoCard ? redoCard.question : this.reviewSequencer.currentQuestion;
+        const currentQ: Question = redoCard
+            ? redoCard.question
+            : this.reviewSequencer.currentQuestion;
 
         // Just the question/answer text; without any preceding topic tag
         const textPrompt = currentQ.questionText.actualQuestion;
