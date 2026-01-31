@@ -59,6 +59,7 @@ export class CardUI {
 
     public controls: HTMLDivElement;
     public editButton: HTMLButtonElement;
+    public copyButton: HTMLButtonElement;
     public resetButton: HTMLButtonElement;
     public redoButton: HTMLButtonElement;
     public infoButton: HTMLButtonElement;
@@ -227,9 +228,18 @@ export class CardUI {
             cardData.note.filePath,
         );
 
+        const questionContent = this._createCardSection(
+            "sr-card-question",
+            "Copy question",
+            async () => {
+                const content = this._formatQuestionContent(cardData.card);
+                await this._copyToClipboard(content, "Copied question");
+            },
+        );
+
         await wrapper.renderMarkdownWrapper(
             cardData.card.front.trimStart(),
-            this.content,
+            questionContent,
             cardData.question.questionText.textDirection,
         );
 
@@ -327,6 +337,7 @@ export class CardUI {
 
     private _createCardControls() {
         this._createEditButton();
+        this._createCopyButton();
         this._createRedoButton();
         this._createResetButton();
         this._createCardInfoButton();
@@ -340,6 +351,18 @@ export class CardUI {
         this.editButton.setAttribute("aria-label", t("EDIT_CARD"));
         this.editButton.addEventListener("click", () => {
             this.editClickHandler();
+        });
+    }
+
+    private _createCopyButton() {
+        this.copyButton = this.controls.createEl("button");
+        this.copyButton.addClasses(["sr-button", "sr-copy-button"]);
+        setIcon(this.copyButton, "copy");
+        this.copyButton.setAttribute("aria-label", "Copy card content");
+        this.copyButton.addEventListener("click", async () => {
+            const cardData = this._getCardData();
+            const content = this._formatFullCardContent(cardData.card);
+            await this._copyToClipboard(content, "Copied card content");
         });
     }
 
@@ -748,9 +771,19 @@ export class CardUI {
             this.plugin,
             cardData.note.filePath,
         );
+
+        const answerContent = this._createCardSection(
+            "sr-card-answer",
+            "Copy answer",
+            async () => {
+                const content = this._formatAnswerContent(cardData.card);
+                await this._copyToClipboard(content, "Copied answer");
+            },
+        );
+
         wrapper.renderMarkdownWrapper(
             cardData.card.back,
-            this.content,
+            answerContent,
             cardData.question.questionText.textDirection,
         );
 
@@ -865,6 +898,75 @@ export class CardUI {
             this.currentAudio.pause();
             this.currentAudio.currentTime = 0;
             this.currentAudio = null;
+        }
+    }
+
+    private _createCardSection(
+        sectionClass: string,
+        copyAriaLabel: string,
+        onCopy: () => void | Promise<void>,
+    ): HTMLDivElement {
+        const section = this.content.createDiv();
+        section.addClasses(["sr-card-section", sectionClass]);
+
+        const actions = section.createDiv();
+        actions.addClass("sr-card-section-actions");
+
+        const copyButton = actions.createEl("button");
+        copyButton.addClasses(["sr-button", "sr-card-copy-button"]);
+        setIcon(copyButton, "copy");
+        copyButton.setAttribute("aria-label", copyAriaLabel);
+        copyButton.addEventListener("click", () => {
+            onCopy();
+        });
+
+        const content = section.createDiv();
+        content.addClass("sr-card-section-content");
+
+        return content;
+    }
+
+    private _formatQuestionContent(card: Card): string {
+        return (card.front ?? "").trim();
+    }
+
+    private _formatAnswerContent(card: Card): string {
+        return (card.back ?? "").trim();
+    }
+
+    private _formatFullCardContent(card: Card): string {
+        const front = this._formatQuestionContent(card);
+        const back = this._formatAnswerContent(card);
+        if (front && back) {
+            return `${front}\n\n---\n\n${back}`;
+        }
+        return front || back;
+    }
+
+    private async _copyToClipboard(text: string, successMessage: string): Promise<void> {
+        if (!text || text.trim().length === 0) {
+            new Notice("No content to copy");
+            return;
+        }
+
+        try {
+            if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(text);
+            } else {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+            }
+            new Notice(successMessage);
+        } catch (error) {
+            new Notice("Failed to copy to clipboard");
+            console.error("Copy error:", error);
         }
     }
 

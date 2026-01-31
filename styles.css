@@ -93,6 +93,12 @@
         top: 0;
         bottom: 0;
         padding-left: 8px;
+        gap: 6px;
+    }
+
+    .is-mobile:not(.is-tablet) .sr-flashcard .sr-controls .sr-button {
+        width: 36px;
+        height: 36px;
     }
 
     .is-mobile:not(.is-tablet) .sr-flashcard .sr-chosen-deck-info > *,
@@ -162,6 +168,16 @@
     .is-mobile:not(.is-tablet) .sr-flashcard,
     .is-mobile:not(.is-tablet) .sr-deck-list {
         gap: 12px;
+    }
+
+    .is-mobile:not(.is-tablet) .sr-flashcard .sr-controls {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    .is-mobile:not(.is-tablet) .sr-flashcard .sr-controls .sr-button {
+        width: 36px;
+        height: 36px;
     }
 
     .is-mobile:not(.is-tablet) .sr-tab-view {
@@ -487,6 +503,30 @@ body:not(.native-scrollbars) #sr-modal .modal-close-button {
     user-select: text;
     padding-inline: 8px;
     flex-grow: 1;
+}
+
+.sr-flashcard .sr-card-section {
+    position: relative;
+}
+
+.sr-flashcard .sr-card-section-actions {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 1;
+}
+
+.sr-flashcard .sr-card-copy-button {
+    width: 28px;
+    height: 28px;
+    padding: 0;
+}
+
+.sr-flashcard .sr-card-section-content {
+    padding-right: 36px;
 }
 
 .sr-flashcard .sr-content,
