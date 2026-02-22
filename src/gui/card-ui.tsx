@@ -772,14 +772,10 @@ export class CardUI {
             cardData.note.filePath,
         );
 
-        const answerContent = this._createCardSection(
-            "sr-card-answer",
-            "Copy answer",
-            async () => {
-                const content = this._formatAnswerContent(cardData.card);
-                await this._copyToClipboard(content, "Copied answer");
-            },
-        );
+        const answerContent = this._createCardSection("sr-card-answer", "Copy answer", async () => {
+            const content = this._formatAnswerContent(cardData.card);
+            await this._copyToClipboard(content, "Copied answer");
+        });
 
         wrapper.renderMarkdownWrapper(
             cardData.card.back,
